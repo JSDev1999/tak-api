@@ -9,14 +9,14 @@ const bucketRegion = process.env.AWS_BUCKET_REGION;
 const bucketAccessKey = process.env.AWS_ACCESS_KEY;
 const bucketSecretKey = process.env.AWS_SECRET_KEY;
 
-const s3 = new S3({
+const initalS3 = new S3({
   bucketRegion,
   bucketAccessKey,
   bucketSecretKey,
 });
 
 // upload to s3
-export function uploadFile(file) {
+function uploadFile(file) {
   const fileStream = fs.createReadStream(file.path);
 
   const uploadParams = {
@@ -25,5 +25,7 @@ export function uploadFile(file) {
     key: file.filename,
   };
 
-  return s3.upload(uploadParams).promise();
+  return initalS3.upload(uploadParams).promise();
 }
+
+export { uploadFile };
