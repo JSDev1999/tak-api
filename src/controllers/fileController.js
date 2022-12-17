@@ -1,20 +1,46 @@
-import multer from "multer";
 import { HttpStatus, Response } from "../helpers/Response.js";
-import { uploadFile } from "../utils/s3File.js";
-const upload = multer({ dest: "uploads/" });
+import fileModel from "../models/fileModel.js";
+import { getFileStream, uploadFile } from "../utils/s3File.js";
 
-
-export const uploadFileToServer = upload.single('file') = async(req,res) => {
-    try {
-        const file = req.file
-        console.log(file)
-        const result = await uploadFile(file)
-        console.log(result)
-    } catch (error) {
-          return res
+const uploadFileToServer = async (req, res) => {
+  try {
+    const file = req.file;
+    const result = await uploadFile(file);
+    const fileresults = await fileModel.create({ file: result?.key });
+    return res
+      .status(HttpStatus.OK.code)
+      .json(
+        new Response(
+          HttpStatus.OK.code,
+          HttpStatus.OK.status,
+          "file upload successful",
+          fileresults
+        )
+      );
+  } catch (error) {
+    return res
       .status(HttpStatus.OK.code)
       .json(
         new Response(HttpStatus.OK.code, HttpStatus.OK.status, error.message)
       );
-    }
-}
+  }
+};
+
+const getFileFromServer = async (req, res) => {
+  try {
+    const results = await fileModel.findById(req.params?.key);
+
+    const key = results?.file;
+    const readStream = getFileStream(key);
+
+    readStream.pipe(res);
+  } catch (error) {
+    return res
+      .status(HttpStatus.OK.code)
+      .json(
+        new Response(HttpStatus.OK.code, HttpStatus.OK.status, error.message)
+      );
+  }
+};
+
+export { uploadFileToServer, getFileFromServer };
