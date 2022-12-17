@@ -43,4 +43,26 @@ const getFileFromServer = async (req, res) => {
   }
 };
 
-export { uploadFileToServer, getFileFromServer };
+const getAllFileFromServer = async (req, res) => {
+  try {
+    const results = await fileModel.find();
+    return res
+      .status(HttpStatus.OK.code)
+      .json(
+        new Response(
+          HttpStatus.OK.code,
+          HttpStatus.OK.status,
+          "operation successful",
+          results
+        )
+      );
+  } catch (error) {
+    return res
+      .status(HttpStatus.OK.code)
+      .json(
+        new Response(HttpStatus.OK.code, HttpStatus.OK.status, error.message)
+      );
+  }
+};
+
+export { uploadFileToServer, getFileFromServer, getAllFileFromServer };
