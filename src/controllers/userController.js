@@ -16,8 +16,8 @@ const registerUser = async (req, res) => {
     if (error) {
       throw HttpErrors.Conflict(error.details[0].message);
     } else {
-      const newUser = req.body;
-      const reqEmail = req.body.email;
+      const newUser = value;
+      const reqEmail = value?.email;
       const findEMail = await userModel.findOne({ email: reqEmail });
       if (findEMail) {
         return res
@@ -67,7 +67,11 @@ const registerUser = async (req, res) => {
     return res
       .status(HttpStatus.OK.code)
       .json(
-        new Response(HttpStatus.OK.code, HttpStatus.OK.status, error.message)
+        new Response(
+          HttpStatus.BAD_REQUEST.code,
+          HttpStatus.BAD_REQUEST.status,
+          error.message
+        )
       );
   }
 };
@@ -80,7 +84,7 @@ const loginUser = async (req, res) => {
     if (error) {
       throw HttpErrors.Conflict(error.details[0].message);
     } else {
-      const body = req.body;
+      const body = value;
       const reqEmail = req.body.email;
       const checkUser = await userModel.findOne({ email: reqEmail });
       if (checkUser) {
@@ -105,71 +109,79 @@ const loginUser = async (req, res) => {
             );
         } else {
           return res
-            .status(HttpStatus.OK.code)
+            .status(HttpStatus.BAD_REQUEST.code)
             .json(
               new Response(
-                HttpStatus.OK.code,
-                HttpStatus.OK.status,
-                "Invalid Credentials"
+                HttpStatus.BAD_REQUEST.code,
+                HttpStatus.BAD_REQUEST.status,
+                "Invalid credentials"
               )
             );
         }
       } else {
         return res
-          .status(HttpStatus.OK.code)
+          .status(HttpStatus.BAD_REQUEST.code)
           .json(
             new Response(
-              HttpStatus.OK.code,
-              HttpStatus.OK.status,
-              "Invalid Credentials"
+              HttpStatus.BAD_REQUEST.code,
+              HttpStatus.BAD_REQUEST.status,
+              "Invalid credentials"
             )
           );
       }
     }
   } catch (error) {
     return res
-      .status(HttpStatus.OK.code)
+      .status(HttpStatus.BAD_REQUEST.code)
       .json(
-        new Response(HttpStatus.OK.code, HttpStatus.OK.status, error.message)
+        new Response(
+          HttpStatus.BAD_REQUEST.code,
+          HttpStatus.BAD_REQUEST.status,
+          error.message
+        )
       );
   }
 };
 
 // get user data
-const getUserData = async (req, res, next) => {
+const getUserData = async (req, res) => {
   try {
     const userId = req.params.id;
-    //console.log("yyy", req.params.id);
     await userModel
       .findOne({ _id: userId })
       .then((resp) => {
         const { password, ...others } = resp._doc;
-        return res.status(HttpStatus.OK.code).json(
-          new Response(
-            HttpStatus.OK.code,
-            HttpStatus.OK.status,
-
-            "user found",
-            others
-          )
-        );
-      })
-      .catch((error) => {
         return res
           .status(HttpStatus.OK.code)
           .json(
             new Response(
               HttpStatus.OK.code,
               HttpStatus.OK.status,
+              "user found",
+              others
+            )
+          );
+      })
+      .catch((error) => {
+        return res
+          .status(HttpStatus.BAD_REQUEST.code)
+          .json(
+            new Response(
+              HttpStatus.BAD_REQUEST.code,
+              HttpStatus.BAD_REQUEST.status,
               error.message
             )
           );
       });
   } catch (error) {
     return res
-      .status(HttpStatus.OK.code)
+      .status(HttpStatus.BAD_REQUEST.code)
       .json(
-        new Response(HttpStatus.OK.code, HttpStatus.OK.status, error.message)
+        new Response(
+          HttpStatus.BAD_REQUEST.code,
+          HttpStatus.BAD_REQUEST.status,
+          error.message
+        )
       );
   }
 };
